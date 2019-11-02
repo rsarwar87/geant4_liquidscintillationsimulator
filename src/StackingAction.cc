@@ -34,114 +34,99 @@
 #include "StackingAction.hh"
 #include "MyRun.hh"
 
-#include "G4RunManager.hh"
 #include "G4OpticalPhoton.hh"
+#include "G4RunManager.hh"
+#include "G4SystemOfUnits.hh"
 #include "G4Track.hh"
 #include "G4UnitsTable.hh"
 #include "TrackingInformation.hh"
-#include "G4SystemOfUnits.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-StackingAction::StackingAction()
-:
-		G4UserStackingAction()
-{
+StackingAction::StackingAction() : G4UserStackingAction() {}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+StackingAction::~StackingAction() {}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(
+    const G4Track* aTrack) {
+  // keep primary particle
+  if (aTrack->GetParentID() == 0) {
+    TrackInformation* trackInfo;
+    trackInfo = new TrackInformation(aTrack);
+    trackInfo->SetTrackingStatus(1);
+    trackInfo->fParentID = 0;
+    G4Track* theTrack = (G4Track*)aTrack;
+    theTrack->SetUserInformation(trackInfo);
+    return fUrgent;
+  }
+
+  // count secondary particles
+  G4String name = aTrack->GetDefinition()->GetParticleName();
+  G4double energy = aTrack->GetKineticEnergy();
+  Run* run =
+      static_cast<Run*>(G4RunManager::GetRunManager()->GetNonConstCurrentRun());
+  run->ParticleCount(name, energy);
+
+  // kill all secondaries
+  if (aTrack->GetDefinition() ==
+      G4OpticalPhoton::OpticalPhotonDefinition()) {  // particle is optical
+                                                     // photon
+    if (aTrack->GetParentID() > 0) {                 // particle is secondary
+      if (aTrack->GetCreatorProcess()->GetProcessName() == "Scintillation")
+        fScintillationCounter++;
+      if (aTrack->GetCreatorProcess()->GetProcessName() == "Cerenkov")
+        fCerenkovCounter++;
+      return fWaiting;
+    }
+  }
+  if (aTrack->GetDefinition()->GetParticleName() ==
+      "gamma") {                      // particle is optical photon
+    if (aTrack->GetParentID() > 0) {  // particle is secondary
+      if (aTrack->GetKineticEnergy() / keV < 10)
+        return fKill;
+      else if (aTrack->GetCreatorProcess()->GetProcessName() == "nCapture") {
+        // if (aTrack->GetVolume()->GetName() == "Scintillator")
+        G4Track* theTrack = (G4Track*)aTrack;
+        // theTrack->SetParentID(0);
+        TrackInformation* trackInfo =
+            (TrackInformation*)(aTrack->GetUserInformation());
+        trackInfo->SetTrackingStatus(1);
+        theTrack->SetUserInformation(trackInfo);
+        return fUrgent;
+      } else {
+        // G4cout << " Stacking " <<
+        // aTrack->GetCreatorProcess()->GetProcessName() << " " <<
+        // aTrack->GetKineticEnergy() << G4endl;
+        G4Track* theTrack = (G4Track*)aTrack;
+        // theTrack->SetParentID(0);
+        TrackInformation* trackInfo =
+            (TrackInformation*)(aTrack->GetUserInformation());
+        trackInfo->SetTrackingStatus(2);
+        theTrack->SetUserInformation(trackInfo);
+        return fUrgent;
+      }
+    }
+  }
+  if (energy * MeV > 20 * MeV) return fKill;
+  return fUrgent;
+}
+
+void StackingAction::NewStage() {
+  // G4cout << "Number of Scintillation photons produced in this event : "
+  //       << fScintillationCounter << G4endl;
+  // G4cout << "Number of Cerenkov photons produced in this event : "
+  //       << fCerenkovCounter << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-StackingAction::~StackingAction()
-{
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-G4ClassificationOfNewTrack
-StackingAction::ClassifyNewTrack(
-		const G4Track* aTrack)
-{
-	//keep primary particle
-	if (aTrack->GetParentID() == 0)
-	{
-		TrackInformation* trackInfo;
-		trackInfo = new TrackInformation(aTrack);
-		trackInfo->SetTrackingStatus(1);
-		trackInfo->fParentID = 0;
-		G4Track* theTrack = (G4Track*)aTrack;
-		theTrack->SetUserInformation(trackInfo);
-		return fUrgent;
-	}
-
-	//count secondary particles
-	G4String name = aTrack->GetDefinition()->GetParticleName();
-	G4double energy = aTrack->GetKineticEnergy();
-	Run* run =
-			static_cast<Run*>(G4RunManager::GetRunManager()->GetNonConstCurrentRun());
-	run->ParticleCount(name, energy);
-
-	//kill all secondaries
-	if (aTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
-	{ // particle is optical photon
-		if (aTrack->GetParentID() > 0)
-		{ // particle is secondary
-			if (aTrack->GetCreatorProcess()->GetProcessName()
-					== "Scintillation")
-				fScintillationCounter++;
-			if (aTrack->GetCreatorProcess()->GetProcessName() == "Cerenkov")
-				fCerenkovCounter++;
-			return fWaiting;
-		}
-	}
-	if (aTrack->GetDefinition()->GetParticleName() == "gamma")
-	{ // particle is optical photon
-		if (aTrack->GetParentID() > 0)
-		{ // particle is secondary
-			if (aTrack->GetKineticEnergy()/keV < 10)
-				return fKill;
-			else if (aTrack->GetCreatorProcess()->GetProcessName()
-					== "nCapture")
-			{
-			//if (aTrack->GetVolume()->GetName() == "Scintillator")
-				G4Track* theTrack = (G4Track*)aTrack;
-				//theTrack->SetParentID(0);
-				TrackInformation* trackInfo
-				= (TrackInformation*)(aTrack->GetUserInformation());
-				trackInfo->SetTrackingStatus(1);
-				theTrack->SetUserInformation(trackInfo);
-				return fUrgent;
-			}
-			else 
-			{
-				//G4cout << " Stacking " << aTrack->GetCreatorProcess()->GetProcessName() << " " <<  aTrack->GetKineticEnergy() << G4endl;
-				G4Track* theTrack = (G4Track*)aTrack;
-				//theTrack->SetParentID(0);
-				TrackInformation* trackInfo
-				= (TrackInformation*)(aTrack->GetUserInformation());
-				trackInfo->SetTrackingStatus(2);
-				theTrack->SetUserInformation(trackInfo);
-				return fUrgent;
-			}
-		}
-	}
-	if (energy*MeV > 20*MeV) return fKill; 
-	return fUrgent;
-}
-
-void StackingAction::NewStage()
-{
-	//G4cout << "Number of Scintillation photons produced in this event : "
-	//       << fScintillationCounter << G4endl;
-	//G4cout << "Number of Cerenkov photons produced in this event : "
-	//       << fCerenkovCounter << G4endl;
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void StackingAction::PrepareNewEvent()
-{
-	fScintillationCounter = 0;
-	fCerenkovCounter = 0;
-	fCount = 0;
+void StackingAction::PrepareNewEvent() {
+  fScintillationCounter = 0;
+  fCerenkovCounter = 0;
+  fCount = 0;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
