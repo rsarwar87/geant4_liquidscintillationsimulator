@@ -100,6 +100,8 @@ Visualisation
           -AmLi        Sets the particle generator to use approximated AmLi27
                        neutron particle. 
            !!!!If neither [-spectrum_select] flag is used, FREYA generated Cf-252 29 spectrum is used
+          -uncor       Produce uncorrelated angular distribution with FREYA
+          -cmod [fname]get angular/energy and multiplicity distribution from binary file
      [-particle_select]
           -n [energy]  Selects neutron particles to be simulated. If -mono flag 
                        has been declared, then the neutron energy is set assay
