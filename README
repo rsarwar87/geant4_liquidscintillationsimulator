@@ -5,17 +5,12 @@ $Id: README 78303 2013-12-11 10:50:38Z gcosmo $
      Geant4 - an Object-Oriented Toolkit for Simulation in HEP
      =========================================================
 
-                            OpNovice
+                            LiquidScintillatorModeller
                             --------
 
 This example presently illustrates the following basic concepts, and in
 particular (indicated with ***), how to use G4 for optical photon
-generation and transport. Other extended example of what is possible
-in Geant4 with optical photons can be found at
-examples/extended/optical/LXe and wls.
-
-main()
-------
+generation and transport. 
 
  ==> define Random Number Engine and initial seed
 
@@ -32,20 +27,12 @@ G4VUserPhysicsList
 G4VUserDetectorConstruction
 ---------------------------
 
- ==> define material: Air and Water
-     define simple G4box geometry
-     *** add G4MaterialPropertiesTable to G4Material       ***
-     *** define G4LogicalSurface(s)                        ***
-     *** define G4OpticalSurface                           ***
-     *** add G4MaterialPropertiesTable to G4OpticalSurface ***
+ ==> defined some experimental setups used during my PhD
 
 G4VUserPrimaryGeneratorAction
 -----------------------------
 
- ==> Use G4ParticleGun to shoot a charge particle into a Cerenkov radiator
- 
- ==> A messenger command allows to define interactivly the polarization of an
-     primary optical photon (see for instance optPhoton.mac)
+ ==> particles may be generated from freya or cgmf sampler or from geant4
  
 G4UserRunAction
 ---------------
@@ -71,28 +58,54 @@ Visualisation
  
  HOW TO START
  ------------
- 
+ - Prerequisits:
+     % Geant
+     % LLNL FREYA libarries
+     % armadillo library
+     
  - compile and link to generate an executable
- 	% cd OpNovice
- 	% gmake
-
+ 	% cd foler
+ 	% mkdir workspace
+     % cd workspace
+     % cmake ../
+     % make -j8
+     
    This example handles the program arguments in a new way.
    It can be run with the following optional arguments:
-   % OpNovice [-m macro ] [-u UIsession] [-t nThreads]
-
-   The -t option is available only in multi-threading mode
-   and it allows the user to override the Geant4 default number of
-   threads. The number of threads can be also set via G4FORCENUMBEROFTHREADS
-   environment variable which has the top priority.
-
- - execute OpNovice in 'batch' mode from macro files
- 	% OpNovice -m OpNovice.in
- 
- - execute OpNovice in 'interactive mode' with visualization
- 	% OpNovice
- 	....
- 	Idle> type your commands. For instance:
- 	Idle> /control/execute optPhoton.mac
- 	....
- 	Idle> exit
- 
+     
+     ./EXE [-option] [-geometry_select] [-spectrum_select]  [-particle_select]
+     
+     [-option]
+        -m [file]    Passes the file name of the macro which contains
+                     information on the number of histories to simulate.
+                     If not included, the OpenGL GUI will be displayed
+                     for geometry inspection.
+        -r [val]     Sets the random number seed to [val] (optional).
+        -t [val]     Sets the number of threads to be used (default = 1)
+        -c [val]     Sets the threshold for the scintillation detectors13
+                     to [val] which is expressed in keV (default = 200 keV)
+     
+     [-geometry_select]
+         -assay       Selects the LSD mock-up assay.
+         -lancs       Selects the REFL15 setup.
+         -l           Selects the BARE15 setup. 
+         !!!!If neither -lancs or -l flag is not used, BARE8 is used.
+         -w [val]     Selects the radius of water filled cylinder used in20
+                      neutron spectroscopy experiments. Only functional if
+                      -assay and -lancs flags are not used
+     [-spectrum_select]
+          -mono        Sets the particle generator to use mono-energetic24               
+                       particle beams with a directional vector of (0, 0, 1).
+                       The energy is defined by the -n or -g flag.26   
+          -AmLi        Sets the particle generator to use approximated AmLi27
+                       neutron particle. 
+           !!!!If neither [-spectrum_select] flag is used, FREYA generated Cf-252 29 spectrum is used
+     [-particle_select]
+          -n [energy]  Selects neutron particles to be simulated. If -mono flag 
+                       has been declared, then the neutron energy is set assay
+                       [energy] keV. Otherwise only neutrons from FREYA Cf-25234
+                       distribution is simulated.
+          -g [energy]  Selects photon particles to be simulated. If -mono flag 
+                       has been declared, then the photon energy is set assay
+                       [energy] keV. Otherwise only photons from FREYA Cf-25238
+                       distribution is simulated.
