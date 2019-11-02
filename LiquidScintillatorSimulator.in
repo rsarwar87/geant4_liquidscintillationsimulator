@@ -1,0 +1,7 @@
+#
+/run/beamOn 10000
+#
+#/process/inactivate Scintillation
+#/OpNovice/phys/verbose 0
+#
+#/run/beamOn 1
