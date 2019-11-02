@@ -35,6 +35,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #
 add_executable(LiquidScintillatorSimulator LiquidScintillatorSimulator.cc ${sources} ${headers})
 target_link_libraries(LiquidScintillatorSimulator ${Geant4_LIBRARIES} ${ARMADILLO_LIBRARIES})
+target_link_libraries(LiquidScintillatorSimulator /media/2TB/workspace/rsarwar/server/fission_v2.0.5/lib/libFission.so)
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we

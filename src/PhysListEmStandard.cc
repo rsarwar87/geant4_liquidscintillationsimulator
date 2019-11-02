@@ -90,7 +90,7 @@ void ElectromagneticPhysics::ConstructProcess()
 
   // Add standard EM Processes
   //
-	//auto particleIterator = GetParticleIterator();
+	auto aParticleIterator = GetParticleIterator();
 	aParticleIterator->reset();
 	while ((*aParticleIterator)())
 	{
