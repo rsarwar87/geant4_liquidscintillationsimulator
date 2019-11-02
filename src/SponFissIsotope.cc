@@ -7,6 +7,7 @@
 #include "SponFissIsotope.hh"
 #include "G4SystemOfUnits.hh"
 
+bool SponFissIsotope::angular_correlation = true;
 //----------------------------------------------------------------------------//
 SponFissIsotope::SponFissIsotope() {}
 
@@ -90,12 +91,21 @@ void SponFissIsotope::GeneratePrimaryVertex(G4Event* anEvent) {
     it->SetKineticEnergy(eng);
     mom = it->GetTotalMomentum();
 
-    momx = mom * fe->getNeutronDircosu(i);
-    momy = mom * fe->getNeutronDircosv(i);
-    momz = mom * fe->getNeutronDircosw(i);
+    if (angular_correlation){
+      momx = mom * fe->getNeutronDircosu(i);
+      momy = mom * fe->getNeutronDircosv(i);
+      momz = mom * fe->getNeutronDircosw(i);
+    } else {
+      G4ThreeVector direction;
+      direction.setRThetaPhi(1.0, std::acos(G4UniformRand() * 2 - 1),
+             (G4UniformRand() * 2 - 1) * 180 * deg);
+      momx = direction.z();
+      momy = direction.z();
+      momz = direction.z();
+    }
 
     G4PrimaryParticle* particle =
-        new G4PrimaryParticle(neutron_definition, mom, 0, 0, eng);
+        new G4PrimaryParticle(neutron_definition, momx, momy, momz, eng);
     particle->SetMass(neutron_definition->GetPDGMass());
     particle->SetCharge(neutron_definition->GetPDGCharge());
     particle->SetPolarization(particle_polarization.x(),
@@ -119,9 +129,18 @@ void SponFissIsotope::GeneratePrimaryVertex(G4Event* anEvent) {
     it->SetKineticEnergy(eng);
     mom = it->GetTotalMomentum();
 
-    momx = mom * fe->getPhotonDircosu(i);
-    momy = mom * fe->getPhotonDircosv(i);
-    momz = mom * fe->getPhotonDircosw(i);
+    if (angular_correlation){
+      momx = mom * fe->getNeutronDircosu(i);
+      momy = mom * fe->getNeutronDircosv(i);
+      momz = mom * fe->getNeutronDircosw(i);
+    } else {
+      G4ThreeVector direction;
+      direction.setRThetaPhi(1.0, std::acos(G4UniformRand() * 2 - 1),
+             (G4UniformRand() * 2 - 1) * 180 * deg);
+      momx = direction.z();
+      momy = direction.z();
+      momz = direction.z();
+    }
 
     G4PrimaryParticle* particle =
         new G4PrimaryParticle(photon_definition, momx, momy, momz, eng);

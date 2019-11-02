@@ -25,6 +25,7 @@
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
 #include "SourceListing.hh"
+#include "SponFiss.hh"
 #include "SteppingAction.hh"
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 namespace {
@@ -109,6 +110,8 @@ int main(int argc, char** argv) {
       SteppingAction::gwidth = atoi(argv[i + 1]);
     } else if (G4String(argv[i]) == "-lancs") {
       DetectorConstruction::lancs = true;
+    } else if (G4String(argv[i]) == "-uncor") {
+      SponFiss::angular_correlation = false;
     }
 #ifdef G4MULTITHREADED
     else if (G4String(argv[i]) == "-t") {

@@ -55,6 +55,7 @@ public:
 		verbosityLevel = verb;
 	}
 	;
+  static bool angular_correlation;
 
 private:
 	G4int isotope;

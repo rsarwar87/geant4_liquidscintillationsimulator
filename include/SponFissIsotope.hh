@@ -35,6 +35,7 @@ class SponFissIsotope : public SingleSource {
   // Set the verbosity level.
   void SetVerbosity(G4int verb) { verbosityLevel = verb; };
 
+  static bool angular_correlation; 
  private:
   G4int isotope;
   G4ThreeVector particle_polarization;

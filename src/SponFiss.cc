@@ -5,40 +5,37 @@
 //******************************************************************************
 //
 #include "SponFiss.hh"
-#include "G4SystemOfUnits.hh"
-#include "DetectorConstruction.hh"
-#include "G4PrimaryParticle.hh"
-#include "G4Event.hh"
-#include "Randomize.hh"
 #include <cmath>
-#include "G4ParticleTable.hh"
+#include "DetectorConstruction.hh"
+#include "G4Event.hh"
 #include "G4Geantino.hh"
-#include "G4ParticleDefinition.hh"
 #include "G4IonTable.hh"
 #include "G4Ions.hh"
-#include "G4TrackingManager.hh"
-#include "G4Track.hh"
-#include "SingleSource.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4ParticleTable.hh"
+#include "G4PrimaryParticle.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4Track.hh"
+#include "G4TrackingManager.hh"
 #include "PrimaryGeneratorAction.hh"
+#include "Randomize.hh"
+#include "SingleSource.hh"
+
+bool SponFiss::angular_correlation = true;
+//----------------------------------------------------------------------------//
+SponFiss::SponFiss() {}
 
 //----------------------------------------------------------------------------//
-SponFiss::SponFiss()
-{
-}
+SponFiss::SponFiss(
+    G4int iso, G4SPSPosDistribution* pos /*, PrimaryGeneratorAction *run*/) {
+  neutron_definition = G4Neutron::Neutron();
+  photon_definition = G4Gamma::Gamma();
 
-//----------------------------------------------------------------------------//
-SponFiss::SponFiss(G4int iso,
-		G4SPSPosDistribution *pos/*, PrimaryGeneratorAction *run*/)
-{
-	neutron_definition = G4Neutron::Neutron();
-	photon_definition = G4Gamma::Gamma();
-
-	// verbosity
-	verbosityLevel = 0;
-	//fRun = run;
-	isotope = iso;
-	posDist = pos;
+  // verbosity
+  verbosityLevel = 0;
+  // fRun = run;
+  isotope = iso;
+  posDist = pos;
 }
 
 //----------------------------------------------------------------------------//
@@ -123,10 +120,18 @@ void SponFiss::GeneratePrimaryVertex(G4Event* anEvent, G4double time,
       it->SetKineticEnergy(eng);
       mom = it->GetTotalMomentum();
 
-      momx = mom * fe->getNeutronDircosu(i);
-      momy = mom * fe->getNeutronDircosv(i);
-      momz = mom * fe->getNeutronDircosw(i);
-
+      if (angular_correlation) {
+        momx = mom * fe->getNeutronDircosu(i);
+        momy = mom * fe->getNeutronDircosv(i);
+        momz = mom * fe->getNeutronDircosw(i);
+      } else {
+        G4ThreeVector direction;
+        direction.setRThetaPhi(1.0, std::acos(G4UniformRand() * 2 - 1),
+                               (G4UniformRand() * 2 - 1) * 180 * deg);
+        momx = direction.z();
+        momy = direction.z();
+        momz = direction.z();
+      }
       G4PrimaryParticle* particle = new G4PrimaryParticle(
           neutron_definition, momx, momy, momz, eng * MeV);
       // particle->SetMomentumDirection(G4ThreeVector(1., 0., 0.));
@@ -178,10 +183,18 @@ void SponFiss::GeneratePrimaryVertex(G4Event* anEvent, G4double time,
       it->SetKineticEnergy(eng);
       mom = it->GetTotalMomentum();
 
-      momx = mom * fe->getPhotonDircosu(i);
-      momy = mom * fe->getPhotonDircosv(i);
-      momz = mom * fe->getPhotonDircosw(i);
-
+      if (angular_correlation) {
+        momx = mom * fe->getNeutronDircosu(i);
+        momy = mom * fe->getNeutronDircosv(i);
+        momz = mom * fe->getNeutronDircosw(i);
+      } else {
+        G4ThreeVector direction;
+        direction.setRThetaPhi(1.0, std::acos(G4UniformRand() * 2 - 1),
+                               (G4UniformRand() * 2 - 1) * 180 * deg);
+        momx = direction.z();
+        momy = direction.z();
+        momz = direction.z();
+      }
       G4PrimaryParticle* particle =
           new G4PrimaryParticle(photon_definition, momx, momy, momz, eng * MeV);
       particle->SetMass(photon_definition->GetPDGMass());
