@@ -428,10 +428,15 @@ void Run::EndOfRun() {
                     << "\t( " << G4BestUnit(eMin, "Energy") << " --> "
                     << G4BestUnit(eMax, "Energy") << ")" << G4endl;*/
   }
-
-    fout.write(reinterpret_cast<char*>(fEnergyTime), std::streamsize(5000*sizeof(G4int))); 
+  for (int p = 0; p < 2; p++)
+  for (int i = 0; i < 7; i++)
+  {
+    fout << "\n PARTICLE" << std::setw(5) << p << " FINAL " << G4Threading::G4GetThreadId() << " Type: " << i << "\n";
+       
+    fout.write(reinterpret_cast<char*>(fEnergyTime[p][i]), std::streamsize(5000*sizeof(G4int))); 
         
-    fout.write(reinterpret_cast<char*>(fCountTime), std::streamsize(5000*sizeof(G4int))); 
+    fout.write(reinterpret_cast<char*>(fCountTime[p][i]), std::streamsize(5000*sizeof(G4int))); 
+  }
   // normalize histograms
   ////G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   ////G4double factor = 1./numberOfEvent;
@@ -449,8 +454,10 @@ void Run::RecordEvent(const G4Event *evt) {
   gEventNumber++;
 
   if (gEventNumber % 1000 == 0)
-    G4cout << "NPS: " << gEventNumber << " Neutron: " << multi_detected[1][1]
-           << " " << multi_detected[1][2] << " " << multi_detected[1][3]
+    G4cout << "NPS: " << gEventNumber << " Neutron: " << multi_detected[1][0] << multi_detected[1][1]
+           << " " << multi_detected[1][2] << " " << multi_detected[1][3] << G4endl
+           << "NPS: " << gEventNumber << " Gamma  : " << multi_detected[0][0] << multi_detected[0][1]
+           << " " << multi_detected[0][2] << " " << multi_detected[0][3]
            << G4endl;
 
   SteppingAction *SA = SteppingAction::Instance();
@@ -550,12 +557,12 @@ void Run::RecordEvent(const G4Event *evt) {
       for (int i = 0; i < 7; i++)
       {
         fout << "\n" << std::setw(5) << gEventNumber << " EventId: " << tmp->name << " Type: " << i << "\n";
-        fout.write(reinterpret_cast<char*>(tmp->depoEnergyTime), std::streamsize(5000*sizeof(G4int))); 
-        fout.write(reinterpret_cast<char*>(tmp->reacEnergyTime), std::streamsize(5000*sizeof(G4int))); 
+        fout.write(reinterpret_cast<char*>(tmp->depoEnergyTime[i]), std::streamsize(5000*sizeof(G4int))); 
+        fout.write(reinterpret_cast<char*>(tmp->reacEnergyTime[i]), std::streamsize(5000*sizeof(G4int))); 
         for (int k = 0; k < 5000; k++)
         {
-          fEnergyTime[fPartType][i][k] += tmp->depoEnergyTime[k][i];
-          fCountTime[fPartType][i][k]  += tmp->reacEnergyTime[k][i];
+          fEnergyTime[fPartType][i][k] += tmp->depoEnergyTime[i][k];
+          fCountTime[fPartType][i][k]  += tmp->reacEnergyTime[i][k];
         }
       }
       fEventRegistered[detID]++;

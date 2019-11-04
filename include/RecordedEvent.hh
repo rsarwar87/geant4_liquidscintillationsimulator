@@ -92,8 +92,8 @@ class RecodedEvent {
   G4double reacEnergy[100][5] = {{0}};
   G4double depoCounter[100][7] = {{0}};
   G4double depoEnergy[100][7] = {{0}};
-  G4double depoEnergyTime[5001][7] = {{0}};
-  G4double reacEnergyTime[5001][7] = {{0}};
+  G4int depoEnergyTime[7] [5001] = {{0}};
+  G4int reacEnergyTime[7] [5001]= {{0}};
   G4double *intervaltimeEnergy[7] = {NULL};
   G4int *intervaltimeCounter[7] = {NULL};
   G4int idp = 0, idn = 0, idx = 0;
@@ -201,7 +201,7 @@ class RecodedEvent {
     }
 
     if (time < 5000)
-      depoEnergyTime[(int)time][_idx] += eng;
+      depoEnergyTime[_idx][(int)time] += eng;
     depoEnergy[pCount][_idx] += eng;
     depoCounter[pCount][_idx]++;
 
@@ -212,7 +212,7 @@ class RecodedEvent {
     reacEnergy[pCount][_idx] += eng;
     reacCounter[pCount][_idx]++;
     if (time < 5000)
-      reacEnergyTime[(int)time][_idx] += eng;
+      reacEnergyTime[_idx][(int)time] += eng;
 
     if (_idx < 2) {
       if (firstInteraction[pCount][_idx] == -1) {
