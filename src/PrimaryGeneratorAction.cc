@@ -127,10 +127,10 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
     fParticleGun->GeneratePrimaryVertex(anEvent);
   } else if (AmLi) {
     fParticleGun->SetParticleEnergy((G4UniformRand() + .3) * MeV);
-    G4ThreeVector direction;
+    /*G4ThreeVector direction;
     direction.setRThetaPhi(1.0, std::acos(G4UniformRand() * 2 - 1),
              (G4UniformRand() * 2 - 1) * 180 * deg);
-    fParticleGun->SetParticleMomentumDirection(direction);
+    fParticleGun->SetParticleMomentumDirection(direction);*/
     fParticleGun->GeneratePrimaryVertex(anEvent);
   } else if (sfif) {
     G4MUTEXLOCK(&aMutex);
