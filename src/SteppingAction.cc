@@ -74,7 +74,7 @@ void SteppingAction::Reset() {
   crParticle = NULL;
   _cnnt = 0;
   _cnnt2 = -1;
-  _eng_l = 1;
+  _eng_l = -1;
   _tm_l = 1000000;
   return;
 }
