@@ -32,44 +32,43 @@
 #ifndef PhysicsList_h
 #define PhysicsList_h 1
 
+#include "G4ProcessManager.hh"
 #include "G4VModularPhysicsList.hh"
 #include "globals.hh"
-#include "G4ProcessManager.hh"
 
 #include "G4Cerenkov.hh"
-#include "G4Scintillation.hh"
 #include "G4OpAbsorption.hh"
-#include "G4OpRayleigh.hh"
-#include "G4OpMieHG.hh"
 #include "G4OpBoundaryProcess.hh"
+#include "G4OpMieHG.hh"
+#include "G4OpRayleigh.hh"
+#include "G4Scintillation.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class PhysicsList: public G4VModularPhysicsList
-{
-public:
-	PhysicsList();
-	~PhysicsList();
+class PhysicsList : public G4VModularPhysicsList {
+ public:
+  PhysicsList();
+  ~PhysicsList();
 
-public:
-	virtual void ConstructParticle();
-	//virtual void ConstructProcess();
+ public:
+  virtual void ConstructParticle();
+  // virtual void ConstructProcess();
 
-	virtual void SetCuts();
+  virtual void SetCuts();
 
-	//these methods Construct physics processes and register them
-	//void ConstructDecay();
-	//void ConstructEM();
-	//void ConstructOp();
+  // these methods Construct physics processes and register them
+  // void ConstructDecay();
+  // void ConstructEM();
+  // void ConstructOp();
 
-	static G4ThreadLocal G4int fMaxNumPhotonStep;
+  static G4ThreadLocal G4int fMaxNumPhotonStep;
 
-	static G4ThreadLocal G4Cerenkov* fCerenkovProcess;
-	static G4ThreadLocal G4Scintillation* fScintillationProcess;
-	static G4ThreadLocal G4OpAbsorption* fAbsorptionProcess;
-	static G4ThreadLocal G4OpRayleigh* fRayleighScatteringProcess;
-	static G4ThreadLocal G4OpMieHG* fMieHGScatteringProcess;
-	static G4ThreadLocal G4OpBoundaryProcess* fBoundaryProcess;
+  static G4ThreadLocal G4Cerenkov* fCerenkovProcess;
+  static G4ThreadLocal G4Scintillation* fScintillationProcess;
+  static G4ThreadLocal G4OpAbsorption* fAbsorptionProcess;
+  static G4ThreadLocal G4OpRayleigh* fRayleighScatteringProcess;
+  static G4ThreadLocal G4OpMieHG* fMieHGScatteringProcess;
+  static G4ThreadLocal G4OpBoundaryProcess* fBoundaryProcess;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

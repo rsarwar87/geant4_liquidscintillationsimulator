@@ -39,20 +39,19 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class StackingAction : public G4UserStackingAction
-{
-  public:
-    StackingAction();
-	~StackingAction();
+class StackingAction : public G4UserStackingAction {
+ public:
+  StackingAction();
+  ~StackingAction();
 
-	virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track*);
-	virtual void NewStage();
-	virtual void PrepareNewEvent();
+  virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track*);
+  virtual void NewStage();
+  virtual void PrepareNewEvent();
 
-private:
-	G4int fScintillationCounter;
-	G4int fCerenkovCounter;
-	G4int fCount;
+ private:
+  G4int fScintillationCounter;
+  G4int fCerenkovCounter;
+  G4int fCount;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

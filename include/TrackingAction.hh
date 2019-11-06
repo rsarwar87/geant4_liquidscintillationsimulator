@@ -39,25 +39,20 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class TrackingAction: public G4UserTrackingAction
-{
+class TrackingAction : public G4UserTrackingAction {
+ public:
+  TrackingAction();
+  ~TrackingAction(){};
 
-public:
-	TrackingAction();
-	~TrackingAction()
-	{
-	}
-	;
+  virtual void PreUserTrackingAction(const G4Track*);
+  virtual void PostUserTrackingAction(const G4Track*);
 
-	virtual void PreUserTrackingAction(const G4Track*);
-	virtual void PostUserTrackingAction(const G4Track*);
+  void UpdateTrackInfo(G4double, G4double, G4double);
 
-	void UpdateTrackInfo(G4double, G4double, G4double);
-
-private:
-	G4int fNbStep1, fNbStep2;
-	G4double fTrackLen1, fTrackLen2;
-	G4double fTime1, fTime2;
+ private:
+  G4int fNbStep1, fNbStep2;
+  G4double fTrackLen1, fTrackLen2;
+  G4double fTime1, fTime2;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

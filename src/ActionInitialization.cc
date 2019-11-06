@@ -29,72 +29,61 @@
 /// \brief Implementation of the ActionInitialization class
 
 #include "ActionInitialization.hh"
+#include "EventAction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
-#include "EventAction.hh"
-#include "TrackingAction.hh"
+#include "StackingAction.hh"
 #include "SteppingAction.hh"
 #include "SteppingVerbose.hh"
-#include "StackingAction.hh"
+#include "TrackingAction.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ActionInitialization::ActionInitialization(DetectorConstruction* detector) :
-		G4VUserActionInitialization(), fDetector(detector)
-{
+ActionInitialization::ActionInitialization(DetectorConstruction* detector)
+    : G4VUserActionInitialization(), fDetector(detector) {}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+ActionInitialization::~ActionInitialization() {}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void ActionInitialization::BuildForMaster() const {
+  RunAction* runAction = new RunAction(
+      "RunAction_" + PrimaryGeneratorAction::name + "_", fDetector, 0);
+  SetUserAction(runAction);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ActionInitialization::~ActionInitialization()
-{}
+void ActionInitialization::Build() const {
+  PrimaryGeneratorAction* primary = new PrimaryGeneratorAction();
+  SetUserAction(primary);
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+  RunAction* runAction = new RunAction(
+      "RunAction_" + PrimaryGeneratorAction::name + "_", fDetector, primary);
+  SetUserAction(runAction);
 
-void ActionInitialization::BuildForMaster() const
-{
-	RunAction* runAction = new RunAction(
-			"RunAction_" + PrimaryGeneratorAction::name + "_", fDetector,
-			0);
-	SetUserAction(runAction);
+  TrackingAction* trackingAction = new TrackingAction();
+  SetUserAction(trackingAction);
+
+  SteppingAction* steppingAction = new SteppingAction(
+      "SteppingAction_" + PrimaryGeneratorAction::name + "_" +
+          std::to_string(PrimaryGeneratorAction::energy),
+      trackingAction);
+  SetUserAction(steppingAction);
+
+  StackingAction* stackingAction = new StackingAction();
+  SetUserAction(stackingAction);
+  SetUserAction(
+      new EventAction("EventAction_" + PrimaryGeneratorAction::name + "_" +
+                      std::to_string(PrimaryGeneratorAction::energy)));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void ActionInitialization::Build() const
-{
-	PrimaryGeneratorAction* primary = new PrimaryGeneratorAction();
-	SetUserAction(primary);
-
-	RunAction* runAction = new RunAction(
-			"RunAction_" + PrimaryGeneratorAction::name + "_", fDetector,
-			primary);
-	SetUserAction(runAction);
-
-	TrackingAction* trackingAction = new TrackingAction();
-	SetUserAction(trackingAction);
-
-	SteppingAction* steppingAction = new SteppingAction(
-			"SteppingAction_" + PrimaryGeneratorAction::name + "_"
-					+ std::to_string(PrimaryGeneratorAction::energy),
-			trackingAction);
-	SetUserAction(steppingAction);
-
-	StackingAction* stackingAction = new StackingAction();
-	SetUserAction(stackingAction);
-	SetUserAction(
-			new EventAction(
-					"EventAction_" + PrimaryGeneratorAction::name + "_"
-							+ std::to_string(PrimaryGeneratorAction::energy)));
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-G4VSteppingVerbose* ActionInitialization::InitializeSteppingVerbose() const
-{
+G4VSteppingVerbose* ActionInitialization::InitializeSteppingVerbose() const {
   return new SteppingVerbose();
 }
-
-
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

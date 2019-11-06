@@ -21,7 +21,6 @@
 #include "Randomize.hh"
 #include "SingleSource.hh"
 
-bool SponFiss::angular_correlation = true;
 //----------------------------------------------------------------------------//
 SponFiss::SponFiss() {}
 
@@ -120,18 +119,10 @@ void SponFiss::GeneratePrimaryVertex(G4Event* anEvent, G4double time,
       it->SetKineticEnergy(eng);
       mom = it->GetTotalMomentum();
 
-      if (angular_correlation) {
-        momx = mom * fe->getNeutronDircosu(i);
-        momy = mom * fe->getNeutronDircosv(i);
-        momz = mom * fe->getNeutronDircosw(i);
-      } else {
-        G4ThreeVector direction;
-        direction.setRThetaPhi(1.0, std::acos(G4UniformRand() * 2 - 1),
-                               (G4UniformRand() * 2 - 1) * 180 * deg);
-        momx = direction.z();
-        momy = direction.z();
-        momz = direction.z();
-      }
+      momx = mom * fe->getNeutronDircosu(i);
+      momy = mom * fe->getNeutronDircosv(i);
+      momz = mom * fe->getNeutronDircosw(i);
+
       G4PrimaryParticle* particle = new G4PrimaryParticle(
           neutron_definition, momx, momy, momz, eng * MeV);
       // particle->SetMomentumDirection(G4ThreeVector(1., 0., 0.));
@@ -183,18 +174,10 @@ void SponFiss::GeneratePrimaryVertex(G4Event* anEvent, G4double time,
       it->SetKineticEnergy(eng);
       mom = it->GetTotalMomentum();
 
-      if (angular_correlation) {
-        momx = mom * fe->getNeutronDircosu(i);
-        momy = mom * fe->getNeutronDircosv(i);
-        momz = mom * fe->getNeutronDircosw(i);
-      } else {
-        G4ThreeVector direction;
-        direction.setRThetaPhi(1.0, std::acos(G4UniformRand() * 2 - 1),
-                               (G4UniformRand() * 2 - 1) * 180 * deg);
-        momx = direction.z();
-        momy = direction.z();
-        momz = direction.z();
-      }
+      momx = mom * fe->getPhotonDircosu(i);
+      momy = mom * fe->getPhotonDircosv(i);
+      momz = mom * fe->getPhotonDircosw(i);
+
       G4PrimaryParticle* particle =
           new G4PrimaryParticle(photon_definition, momx, momy, momz, eng * MeV);
       particle->SetMass(photon_definition->GetPDGMass());

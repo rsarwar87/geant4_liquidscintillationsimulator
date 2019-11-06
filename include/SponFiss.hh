@@ -11,13 +11,13 @@
 #define USEFREYA
 
 #include "G4DynamicParticle.hh"
-#include "G4PrimaryVertex.hh"
 #include "G4Event.hh"
-#include "G4Neutron.hh"
 #include "G4Gamma.hh"
-#include "Randomize.hh"
 #include "G4LLNLFission.hh"
+#include "G4Neutron.hh"
+#include "G4PrimaryVertex.hh"
 #include "G4SPSPosDistribution.hh"
+#include "Randomize.hh"
 #ifdef FISSION_NEW
 #include "fissionEvent.h"
 #else
@@ -25,13 +25,13 @@
 #endif
 
 #include "G4DynamicParticle.hh"
-#include "G4PrimaryVertex.hh"
 #include "G4Event.hh"
-#include "G4Neutron.hh"
 #include "G4Gamma.hh"
-#include "Randomize.hh"
 #include "G4LLNLFission.hh"
+#include "G4Neutron.hh"
+#include "G4PrimaryVertex.hh"
 #include "MyRun.hh"
+#include "Randomize.hh"
 #ifdef FISSION_NEW
 #include "fissionEvent.h"
 #else
@@ -39,35 +39,27 @@
 #endif
 class G4Event;
 
-class SponFiss
-{
-public:
-	SponFiss();
-	SponFiss(G4int iso,
-			G4SPSPosDistribution *pos/*, PrimaryGeneratorAction *run*/);
-	~SponFiss();
+class SponFiss {
+ public:
+  SponFiss();
+  SponFiss(G4int iso,
+           G4SPSPosDistribution* pos /*, PrimaryGeneratorAction *run*/);
+  ~SponFiss();
 
-public:
-	void GeneratePrimaryVertex(G4Event* anEvent, G4double time = 0, int mode = 3);
-	// Set the verbosity level.
-	void SetVerbosity(G4int verb)
-	{
-		verbosityLevel = verb;
-	}
-	;
-  static bool angular_correlation;
+ public:
+  void GeneratePrimaryVertex(G4Event* anEvent, G4double time = 0, int mode = 3);
+  // Set the verbosity level.
+  void SetVerbosity(G4int verb) { verbosityLevel = verb; };
 
-private:
-	G4int isotope;
-	G4ThreeVector particle_polarization;
-	G4ParticleDefinition* neutron_definition;
-	G4ParticleDefinition* photon_definition;
-	G4SPSPosDistribution* posDist;
-	// Verbosity
-	G4int verbosityLevel;
-	//PrimaryGeneratorAction fRun;
+ private:
+  G4int isotope;
+  G4ThreeVector particle_polarization;
+  G4ParticleDefinition* neutron_definition;
+  G4ParticleDefinition* photon_definition;
+  G4SPSPosDistribution* posDist;
+  // Verbosity
+  G4int verbosityLevel;
+  // PrimaryGeneratorAction fRun;
 };
-
-
 
 #endif /* INCLUDE_SPONFISS_HH_ */

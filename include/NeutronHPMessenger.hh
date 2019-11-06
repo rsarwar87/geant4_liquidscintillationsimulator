@@ -34,8 +34,8 @@
 #ifndef NeutronHPMessenger2_h
 #define NeutronHPMessenger2_h 1
 
-#include "globals.hh"
 #include "G4UImessenger.hh"
+#include "globals.hh"
 
 class NeutronHPphysics;
 class G4UIdirectory;
@@ -43,19 +43,18 @@ class G4UIcmdWithABool;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class NeutronHPMessenger2: public G4UImessenger
-{
-  public:
-    NeutronHPMessenger2(NeutronHPphysics*);
-   ~NeutronHPMessenger2();
-    
-    virtual void SetNewValue(G4UIcommand*, G4String);
-    
-  private:    
-    NeutronHPphysics*  fNeutronPhysics;
-    
-    G4UIdirectory*     fPhysDir;      
-    G4UIcmdWithABool*  fThermalCmd;
+class NeutronHPMessenger2 : public G4UImessenger {
+ public:
+  NeutronHPMessenger2(NeutronHPphysics*);
+  ~NeutronHPMessenger2();
+
+  virtual void SetNewValue(G4UIcommand*, G4String);
+
+ private:
+  NeutronHPphysics* fNeutronPhysics;
+
+  G4UIdirectory* fPhysDir;
+  G4UIcmdWithABool* fThermalCmd;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

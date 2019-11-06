@@ -1,22 +1,17 @@
 //
 #include "EMPhysics.hh"
 
-#include "globals.hh"
-#include "G4ios.hh"
 #include <iomanip>
+#include "G4ios.hh"
+#include "globals.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-EMPhysics::EMPhysics(const G4String& name) :
-		G4VPhysicsConstructor(name)
-{
-}
+EMPhysics::EMPhysics(const G4String& name) : G4VPhysicsConstructor(name) {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-EMPhysics::~EMPhysics()
-{
-}
+EMPhysics::~EMPhysics() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -28,67 +23,62 @@ EMPhysics::~EMPhysics()
 #include "G4Electron.hh"
 #include "G4Positron.hh"
 
-#include "G4NeutrinoE.hh"
 #include "G4AntiNeutrinoE.hh"
+#include "G4NeutrinoE.hh"
 
-void EMPhysics::ConstructParticle()
-{
-	// gamma
-	G4Gamma::GammaDefinition();
+void EMPhysics::ConstructParticle() {
+  // gamma
+  G4Gamma::GammaDefinition();
 
-	// electron
-	G4Electron::ElectronDefinition();
-	G4Positron::PositronDefinition();
-	G4NeutrinoE::NeutrinoEDefinition();
-	G4AntiNeutrinoE::AntiNeutrinoEDefinition();
+  // electron
+  G4Electron::ElectronDefinition();
+  G4Positron::PositronDefinition();
+  G4NeutrinoE::NeutrinoEDefinition();
+  G4AntiNeutrinoE::AntiNeutrinoEDefinition();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "G4ProcessManager.hh"
 
-void EMPhysics::ConstructProcess()
-{
-	G4PhotoElectricEffect* fPhotoEffect = new G4PhotoElectricEffect();
-	G4ComptonScattering* fComptonEffect = new G4ComptonScattering();
-	G4GammaConversion* fPairProduction = new G4GammaConversion();
+void EMPhysics::ConstructProcess() {
+  G4PhotoElectricEffect* fPhotoEffect = new G4PhotoElectricEffect();
+  G4ComptonScattering* fComptonEffect = new G4ComptonScattering();
+  G4GammaConversion* fPairProduction = new G4GammaConversion();
 
-	// Electron physics
-	G4eMultipleScattering* fElectronMultipleScattering =
-			new G4eMultipleScattering();
-	G4eIonisation* fElectronIonisation = new G4eIonisation();
-	G4eBremsstrahlung* fElectronBremsStrahlung = new G4eBremsstrahlung();
+  // Electron physics
+  G4eMultipleScattering* fElectronMultipleScattering =
+      new G4eMultipleScattering();
+  G4eIonisation* fElectronIonisation = new G4eIonisation();
+  G4eBremsstrahlung* fElectronBremsStrahlung = new G4eBremsstrahlung();
 
-	//Positron physics
-	G4eMultipleScattering* fPositronMultipleScattering =
-			new G4eMultipleScattering();
-	G4eIonisation* fPositronIonisation = new G4eIonisation();
-	G4eBremsstrahlung* fPositronBremsStrahlung = new G4eBremsstrahlung();
-	G4eplusAnnihilation* fAnnihilation = new G4eplusAnnihilation();
+  // Positron physics
+  G4eMultipleScattering* fPositronMultipleScattering =
+      new G4eMultipleScattering();
+  G4eIonisation* fPositronIonisation = new G4eIonisation();
+  G4eBremsstrahlung* fPositronBremsStrahlung = new G4eBremsstrahlung();
+  G4eplusAnnihilation* fAnnihilation = new G4eplusAnnihilation();
 
-	G4ProcessManager* pManager = 0;
+  G4ProcessManager* pManager = 0;
 
-	// Gamma Physics
-	pManager = G4Gamma::Gamma()->GetProcessManager();
-	pManager->AddDiscreteProcess(fPhotoEffect);
-	pManager->AddDiscreteProcess(fComptonEffect);
-	pManager->AddDiscreteProcess(fPairProduction);
+  // Gamma Physics
+  pManager = G4Gamma::Gamma()->GetProcessManager();
+  pManager->AddDiscreteProcess(fPhotoEffect);
+  pManager->AddDiscreteProcess(fComptonEffect);
+  pManager->AddDiscreteProcess(fPairProduction);
 
-	// Electron Physics
-	pManager = G4Electron::Electron()->GetProcessManager();
+  // Electron Physics
+  pManager = G4Electron::Electron()->GetProcessManager();
 
-	pManager->AddProcess(fElectronMultipleScattering, -1, 1, 1);
-	pManager->AddProcess(fElectronIonisation, -1, 2, 2);
-	pManager->AddProcess(fElectronBremsStrahlung, -1, 3, 3);
+  pManager->AddProcess(fElectronMultipleScattering, -1, 1, 1);
+  pManager->AddProcess(fElectronIonisation, -1, 2, 2);
+  pManager->AddProcess(fElectronBremsStrahlung, -1, 3, 3);
 
-  //Positron Physics
-	pManager = G4Positron::Positron()->GetProcessManager();
+  // Positron Physics
+  pManager = G4Positron::Positron()->GetProcessManager();
 
-	pManager->AddProcess(fPositronMultipleScattering, -1, 1, 1);
-	pManager->AddProcess(fPositronIonisation, -1, 2, 2);
-	pManager->AddProcess(fPositronBremsStrahlung, -1, 3, 3);
-	pManager->AddProcess(fAnnihilation, 0, -1, 4);
-
-
-
+  pManager->AddProcess(fPositronMultipleScattering, -1, 1, 1);
+  pManager->AddProcess(fPositronIonisation, -1, 2, 2);
+  pManager->AddProcess(fPositronBremsStrahlung, -1, 3, 3);
+  pManager->AddProcess(fAnnihilation, 0, -1, 4);
 }

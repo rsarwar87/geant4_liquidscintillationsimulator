@@ -2,8 +2,8 @@
 #ifndef ActionInitialization_h
 #define ActionInitialization_h 1
 
-#include "G4VUserActionInitialization.hh"
 #include "G4String.hh"
+#include "G4VUserActionInitialization.hh"
 
 class DetectorConstruction;
 class G4VSteppingVerbose;
@@ -11,20 +11,19 @@ class G4VSteppingVerbose;
 /// Action initialization class.
 ///
 
-class ActionInitialization : public G4VUserActionInitialization
-{
-  public:
-	ActionInitialization(DetectorConstruction* detector);
-    virtual ~ActionInitialization();
+class ActionInitialization : public G4VUserActionInitialization {
+ public:
+  ActionInitialization(DetectorConstruction* detector);
+  virtual ~ActionInitialization();
 
-    virtual void BuildForMaster() const;
-    virtual void Build() const;
+  virtual void BuildForMaster() const;
+  virtual void Build() const;
 
-    virtual G4VSteppingVerbose* InitializeSteppingVerbose() const;
+  virtual G4VSteppingVerbose* InitializeSteppingVerbose() const;
 
-private:
-	DetectorConstruction* fDetector;
-	G4String fMacro = "out";
+ private:
+  DetectorConstruction* fDetector;
+  G4String fMacro = "out";
 };
 
 #endif

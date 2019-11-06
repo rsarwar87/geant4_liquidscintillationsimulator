@@ -30,124 +30,120 @@
 //
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-#include "Trajectory.hh"
 #include "TrackingAction.hh"
+#include "Trajectory.hh"
 
-#include "MyRun.hh"
-#include "HistoManager.hh"
-#include "TrackingInformation.hh"
 #include "G4RunManager.hh"
-#include "G4Track.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4Track.hh"
+#include "HistoManager.hh"
+#include "MyRun.hh"
+#include "TrackingInformation.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-TrackingAction::TrackingAction() :
-		G4UserTrackingAction(), fNbStep1(0), fNbStep2(0), fTrackLen1(0.), fTrackLen2(
-				0.), fTime1(0.), fTime2(0.)
-{
-}
+TrackingAction::TrackingAction()
+    : G4UserTrackingAction(),
+      fNbStep1(0),
+      fNbStep2(0),
+      fTrackLen1(0.),
+      fTrackLen2(0.),
+      fTime1(0.),
+      fTime2(0.) {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void TrackingAction::PreUserTrackingAction(const G4Track* aTrack)
-{
-	fNbStep1 = fNbStep2 = 0;
-	fTrackLen1 = fTrackLen2 = 0.;
-	fTime1 = fTime2 = 0.;
-	fpTrackingManager->SetTrajectory(new Trajectory(aTrack));
+void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
+  fNbStep1 = fNbStep2 = 0;
+  fTrackLen1 = fTrackLen2 = 0.;
+  fTime1 = fTime2 = 0.;
+  fpTrackingManager->SetTrajectory(new Trajectory(aTrack));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void TrackingAction::UpdateTrackInfo(G4double ekin, G4double trackl,
-		G4double time)
-{
-	/*TrackInformation* trackInfo = 	(TrackInformation*)(aTrack->GetUserInformation());
+                                     G4double time) {
+  /*TrackInformation* trackInfo =
+  (TrackInformation*)(aTrack->GetUserInformation());
 
-  	if(trackInfo->GetTrackingStatus() > 0)
-  	{
-   	 fpTrackingManager->SetStoreTrajectory(true);
-  	  fpTrackingManager->SetTrajectory(new RE01Trajectory(aTrack));
-  	}
-  	else
-  	{ fpTrackingManager->SetStoreTrajectory(false); }*/
+  if(trackInfo->GetTrackingStatus() > 0)
+  {
+   fpTrackingManager->SetStoreTrajectory(true);
+    fpTrackingManager->SetTrajectory(new RE01Trajectory(aTrack));
+  }
+  else
+  { fpTrackingManager->SetStoreTrajectory(false); }*/
 
-	const G4double thermal = 1 * eV;
-	if (ekin > thermal)
-	{
-		fNbStep1++;
-		fTrackLen1 = trackl;
-		fTime1 = time;
-	}
-	else
-	{
-		fNbStep2++;
-		fTrackLen2 = trackl - fTrackLen1;
-		fTime2 = time - fTime1;
-	}
+  const G4double thermal = 1 * eV;
+  if (ekin > thermal) {
+    fNbStep1++;
+    fTrackLen1 = trackl;
+    fTime1 = time;
+  } else {
+    fNbStep2++;
+    fTrackLen2 = trackl - fTrackLen1;
+    fTime2 = time - fTime1;
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void TrackingAction::PostUserTrackingAction(const G4Track* track)
-{
-
+void TrackingAction::PostUserTrackingAction(const G4Track* track) {
   G4TrackVector* secondaries = fpTrackingManager->GimmeSecondaries();
-  if(secondaries)
-  {
-    TrackInformation* info = 
-      (TrackInformation*)(track->GetUserInformation());
+  if (secondaries) {
+    TrackInformation* info = (TrackInformation*)(track->GetUserInformation());
     size_t nSeco = secondaries->size();
-	
-	G4String name = track->GetDynamicParticle()->
-						GetParticleDefinition()->GetParticleName();
-	
-    if(nSeco>0)
-    {
-	  /*if (name == "neutron" || name == "gamma")
-		G4cout << "Parent " << nSeco<<  " " << info->fID << " "  << info->fParentType << " " << name << G4endl;
-	*/
-      for(size_t i=0;i<nSeco;i++)
-      { 
-			name = (*secondaries)[i]->GetDynamicParticle()->
-						GetParticleDefinition()->GetParticleName();
-			
+
+    G4String name =
+        track->GetDynamicParticle()->GetParticleDefinition()->GetParticleName();
+
+    if (nSeco > 0) {
+      /*if (name == "neutron" || name == "gamma")
+            G4cout << "Parent " << nSeco<<  " " << info->fID << " "  <<
+         info->fParentType << " " << name << G4endl;
+    */
+      for (size_t i = 0; i < nSeco; i++) {
+        name = (*secondaries)[i]
+                   ->GetDynamicParticle()
+                   ->GetParticleDefinition()
+                   ->GetParticleName();
+
         TrackInformation* infoNew = new TrackInformation(info);
-		infoNew->fParentID = info->fID;
-		infoNew->fID = info->fID;
-		infoNew->fParentType = info->fParentType;
-		
+        infoNew->fParentID = info->fID;
+        infoNew->fID = info->fID;
+        infoNew->fParentType = info->fParentType;
+
         (*secondaries)[i]->SetUserInformation(infoNew);
-		/*if (name == "neutron" || name == "gamma")
-				G4cout << "  Second " << i <<  " " << infoNew->fID << " "  << infoNew->fParentType  <<" " << name << G4endl;
-      	*/	
+        /*if (name == "neutron" || name == "gamma")
+                        G4cout << "  Second " << i <<  " " << infoNew->fID << "
+           "  << infoNew->fParentType  <<" " << name << G4endl;
+*/
       }
     }
   }
-	// keep only primary neutron
-	//
-	Trajectory* trajectory = (Trajectory*) fpTrackingManager->GimmeTrajectory();
+  // keep only primary neutron
+  //
+  Trajectory* trajectory = (Trajectory*)fpTrackingManager->GimmeTrajectory();
 
-	trajectory->SetDrawTrajectory(true);
-	G4int trackID = track->GetTrackID();
-	if (trackID > 1)
-		return;
+  trajectory->SetDrawTrajectory(true);
+  G4int trackID = track->GetTrackID();
+  if (trackID > 1) return;
 
-	Run* run =
-			static_cast<Run*>(G4RunManager::GetRunManager()->GetNonConstCurrentRun());
-	run->SumTrackLength(fNbStep1, fNbStep2, fTrackLen1, fTrackLen2, fTime1,
-			fTime2);
+  Run* run =
+      static_cast<Run*>(G4RunManager::GetRunManager()->GetNonConstCurrentRun());
+  run->SumTrackLength(fNbStep1, fNbStep2, fTrackLen1, fTrackLen2, fTime1,
+                      fTime2);
 
-	// histograms
-	//
-	G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-	analysisManager->FillH1(1, fNbStep1);
-	analysisManager->FillH1(2, fTrackLen1);
-	analysisManager->FillH1(3, fTime1);
-	analysisManager->FillH1(4, fNbStep2);
-	analysisManager->FillH1(5, fTrackLen2);
-	analysisManager->FillH1(6, fTime2);
+  // histograms
+  //
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+  analysisManager->FillH1(1, fNbStep1);
+  analysisManager->FillH1(2, fTrackLen1);
+  analysisManager->FillH1(3, fTime1);
+  analysisManager->FillH1(4, fNbStep2);
+  analysisManager->FillH1(5, fTrackLen2);
+  analysisManager->FillH1(6, fTime2);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
