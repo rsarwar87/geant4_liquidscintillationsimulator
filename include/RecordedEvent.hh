@@ -8,6 +8,7 @@
 #include <vector>
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
+#include "armadillo"
 #include "globals.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -56,6 +57,8 @@ class RecodedEvent {
     particledef.push_back(*nue);
     masterTime = time;
     triggermap = new std::map<G4double, G4double>[100];
+    depoEnergyTime.resize(7, 10000);
+    reacEnergyTime.resize(7, 10000);
     for (int i = 0; i < 7; i++) {
       intervaltimeEnergy[i] = (G4double *)calloc(10000, sizeof(G4double));
       intervaltimeCounter[i] = (G4int *)calloc(10000, sizeof(G4int));
@@ -88,12 +91,12 @@ class RecodedEvent {
   int nNeutron = 0;
   int nPhoton = 0;
   int nUnique = 0;
+  arma::mat depoEnergyTime;
+  arma::mat reacEnergyTime;
   G4double reacCounter[100][5] = {{0}};
   G4double reacEnergy[100][5] = {{0}};
   G4double depoCounter[100][7] = {{0}};
   G4double depoEnergy[100][7] = {{0}};
-  G4int depoEnergyTime[7] [5001] = {{0}};
-  G4int reacEnergyTime[7] [5001]= {{0}};
   G4double *intervaltimeEnergy[7] = {NULL};
   G4int *intervaltimeCounter[7] = {NULL};
   G4int idp = 0, idn = 0, idx = 0;
@@ -186,6 +189,10 @@ class RecodedEvent {
     pCount = particledef.size() - 1;
     return false;
   }
+  void printTimeSeries(std::ofstream &fout) {
+    fout << depoEnergyTime << "\n";
+    fout << reacEnergyTime << "\n";
+  }
 
   void recordProduction(int _idx, G4double eng, G4double time = 0) {
     if (_idx < 2) {
@@ -197,11 +204,11 @@ class RecodedEvent {
       if (id > -1 && id < 10000) {
         intervaltimeCounter[_idx][id]++;
         intervaltimeEnergy[_idx][id] += eng;
+        depoEnergyTime(_idx, id) += eng / keV;
+        reacEnergyTime(_idx, id)++;
       }
     }
 
-    if (time < 5000)
-      depoEnergyTime[_idx][(int)time] += eng;
     depoEnergy[pCount][_idx] += eng;
     depoCounter[pCount][_idx]++;
 
@@ -211,8 +218,6 @@ class RecodedEvent {
                       G4double eng2 = 0) {
     reacEnergy[pCount][_idx] += eng;
     reacCounter[pCount][_idx]++;
-    if (time < 5000)
-      reacEnergyTime[_idx][(int)time] += eng;
 
     if (_idx < 2) {
       if (firstInteraction[pCount][_idx] == -1) {

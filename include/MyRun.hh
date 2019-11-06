@@ -71,14 +71,14 @@ class Run : public G4Run {
   }
 
   const G4int *GetLightResponse(int pidx = 0) const {
-    return fEnergyTime[pidx][1];
+    return fLightResponse[pidx];
   }
   const G4int *GetLightHistogram(int pidx = 0) const {
-    return fCountTime[pidx][1];
+    return fLightHistogram[pidx];
   }
-  const G4int *GetPMTResponse(int pidx = 0) const { return fEnergyTime[pidx][0]; }
+  const G4int *GetPMTResponse(int pidx = 0) const { return fPMTResponse[pidx]; }
   const G4int *GetPMTHistogram(int pidx = 0) const {
-    return fCountTime[pidx][0];
+    return fPMTHistogram[pidx];
   }
 
   const G4int GetTotalRegisterPartile(int idx) const {
@@ -171,8 +171,10 @@ class Run : public G4Run {
   G4int fEventNumber;
   G4int *fEventRegistered;
 
-  G4int ***fEnergyTime;
-  G4int ***fCountTime;
+  G4int **fLightResponse;
+  G4int **fLightHistogram;
+  G4int **fPMTResponse;
+  G4int **fPMTHistogram;
 
   std::ofstream fout;
   G4String filename;

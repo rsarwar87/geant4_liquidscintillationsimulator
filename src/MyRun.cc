@@ -45,32 +45,29 @@ Run::Run(DetectorConstruction *det)
   filename = "EventAction_" + PrimaryGeneratorAction::name + "_" +
              std::to_string(PrimaryGeneratorAction::energy) + "_" +
              std::to_string(G4Threading::G4GetThreadId());
-  fout.open(filename /*+ PrimaryGeneratorAction::name*/,
-            std::ios::binary |std::ios::out | std::ios::trunc);
-  fout.precision(9);
-  /*
-   * fout << "\n\n"
-       << std::setw(8) << "EventId"
-       << "  " << std::setw(14) << "   GlobalTime"
-       << "  " << std::setw(5) << "DetID"
-       << "  " << std::setw(5) << "ParID"
-       << "  " << std::setw(10) << " PrimaryEnrg"
-       << "  " << std::setw(10) << "PrimaryDepo"
-       << "  " << std::setw(6) << "PriCnt"
-       << "  "
-       << "  " << std::setw(10) << "ProtnEnrg"
-       << "  " << std::setw(10) << "ProtonDepo"
-       << "  " << std::setw(6) << "ProCnt"
-       << "  " << std::setw(10) << "ElectEnrg"
-       << "  " << std::setw(10) << "ElectDepo"
-       << "  " << std::setw(6) << "EleCnt"
-       << "  " << std::setw(10) << "OpticEmi"
-       << "  " << std::setw(6) << "OptCnt"
-       << "  " << std::setw(10) << "PMTDetected"
-       << "  " << std::setw(6) << "PMTCnt"
-       << "  " << std::setw(10) << "CerenkovEmm"
-       << "  " << std::setw(10) << "CerenkovCnt \n";
-  */
+  fout.open(filename /*+ PrimaryGeneratorAction::name*/, std::ios::out);
+  /*	fout << "\n\n" << std::setw(8) << "EventId" << "  " << std::setw(14)
+                          << "   GlobalTime" << "  " << std::setw(5) << "DetID"
+     << "  "
+                          << std::setw(5) << "ParID" << "  " << std::setw(10)
+                          << " PrimaryEnrg" << "  " << std::setw(10) <<
+     "PrimaryDepo" << "  "
+                          << std::setw(6) << "PriCnt" << "  " << "  " <<
+     std::setw(10)
+                          << "ProtnEnrg" << "  " << std::setw(10) <<
+     "ProtonDepo" << "  "
+                          << std::setw(6) << "ProCnt" << "  " << std::setw(10)
+     << "ElectEnrg"
+                          << "  " << std::setw(10) << "ElectDepo" << "  " <<
+     std::setw(6)
+                          << "EleCnt" << "  " << std::setw(10) << "OpticEmi" <<
+     "  "
+                          << std::setw(6) << "OptCnt" << "  " << std::setw(10)
+                          << "PMTDetected" << "  " << std::setw(6) << "PMTCnt"
+     << "  "
+                          << std::setw(10) << "CerenkovEmm" << "  " <<
+     std::setw(10)
+                          << "CerenkovCnt \n";*/
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -182,14 +179,12 @@ void Run::Merge(const G4Run *run) {
   G4cout << "local event count = " << localRun->gEventNumber << " "
          << "global event count = " << gEventNumber << G4endl;
 
-  for (uint i = 0; i < 2; i++)
-  for (uint k = 0; k < 7; k++)
-    for (uint j = 0; j < 5000; j++) {
-      fCountTime[i][k][j] += localRun->fCountTime[i][k][j];
-      fEnergyTime[i][k][j] += localRun->fEnergyTime[i][k][j];
-    }
   for (uint k = 0; k < 2; k++)
     for (uint i = 0; i < 5000; i++) {
+      fLightResponse[k][i] += localRun->fLightResponse[k][i];
+      fLightHistogram[k][i] += localRun->fLightHistogram[k][i];
+      fPMTResponse[k][i] += localRun->fPMTResponse[k][i];
+      fPMTHistogram[k][i] += localRun->fPMTHistogram[k][i];
       fIncidentEnergy[k][i] += localRun->fIncidentEnergy[k][i];
       fParticleDeposit[k][i] += localRun->fParticleDeposit[k][i];
       fElectronDeposited[k][i] += localRun->fElectronDeposited[k][i];
@@ -244,8 +239,10 @@ void Run::Merge(const G4Run *run) {
 }
 
 void Run::Reset() {
-  fCountTime = new G4int **[2];
-  fEnergyTime = new G4int **[2];
+  fPMTResponse = new G4int *[2];
+  fLightResponse = new G4int *[2];
+  fPMTHistogram = new G4int *[2];
+  fLightHistogram = new G4int *[2];
   fOphotonDeposited = new G4int *[2];
   fCerenkovProduced = new G4int *[2];
 
@@ -257,22 +254,16 @@ void Run::Reset() {
   fElectronProduced = new G4int *[2];
   fElectronDeposited = new G4int *[2];
   fIncidentEnergy = new G4int *[2];
-  for (int i = 0; i < 2; i++) {
-    fCountTime [i] = new G4int *[7];
-    fEnergyTime[i] = new G4int *[7];
-    for(int y = 0; y < 7; ++y) {
-        fCountTime [i][y] = new G4int [5000];
-        fEnergyTime[i][y] = new G4int [5000];
-        for(int z = 0; z < 5000; ++z) { // initialize the values to whatever you want the default to be
-            fCountTime[i][y][z] = 0;
-            fEnergyTime[i][y][z] = 0;
-        }
-    }
-  }
+
   _time = new G4int *[DETECTOR_COUNT];
   for (int i = 0; i < DETECTOR_COUNT; i++)
     _time[i] = (G4int *)calloc(500, sizeof(G4int));
   for (int i = 0; i < 2; i++) {
+    fPMTResponse[i] = (G4int *)calloc(5000, sizeof(G4int));
+    fLightResponse[i] = (G4int *)calloc(5000, sizeof(G4int));
+    fPMTHistogram[i] = (G4int *)calloc(5000, sizeof(G4int));
+    fLightHistogram[i] = (G4int *)calloc(5000, sizeof(G4int));
+
     fOphotonDeposited[i] = (G4int *)calloc(5000, sizeof(G4int));
     fParticleDeposit[i] = (G4int *)calloc(5000, sizeof(G4int));
     fProtonDeposited[i] = (G4int *)calloc(5000, sizeof(G4int));
@@ -421,22 +412,13 @@ void Run::EndOfRun() {
            << "  Emean = " << std::setw(wid) << G4BestUnit(eMean, "Energy")
            << "\t( " << G4BestUnit(eMin, "Energy") << " --> "
            << G4BestUnit(eMax, "Energy") << ")" << G4endl;
-        
     /*fout << "  " << std::setw(13) << name << ": " << std::setw(7) << count
                     << "  Emean = " << std::setw(wid) << G4BestUnit(eMean,
        "Energy")
                     << "\t( " << G4BestUnit(eMin, "Energy") << " --> "
                     << G4BestUnit(eMax, "Energy") << ")" << G4endl;*/
   }
-  for (int p = 0; p < 2; p++)
-  for (int i = 0; i < 7; i++)
-  {
-    fout << "\n PARTICLE" << std::setw(5) << p << " FINAL " << G4Threading::G4GetThreadId() << " Type: " << i << "\n";
-       
-    fout.write(reinterpret_cast<char*>(fEnergyTime[p][i]), std::streamsize(5000*sizeof(G4int))); 
-        
-    fout.write(reinterpret_cast<char*>(fCountTime[p][i]), std::streamsize(5000*sizeof(G4int))); 
-  }
+
   // normalize histograms
   ////G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   ////G4double factor = 1./numberOfEvent;
@@ -454,10 +436,8 @@ void Run::RecordEvent(const G4Event *evt) {
   gEventNumber++;
 
   if (gEventNumber % 1000 == 0)
-    G4cout << "NPS: " << gEventNumber << " Neutron: " << multi_detected[1][0] << multi_detected[1][1]
-           << " " << multi_detected[1][2] << " " << multi_detected[1][3] << G4endl
-           << "NPS: " << gEventNumber << " Gamma  : " << multi_detected[0][0] << multi_detected[0][1]
-           << " " << multi_detected[0][2] << " " << multi_detected[0][3]
+    G4cout << "NPS: " << gEventNumber << " Neutron: " << multi_detected[1][1]
+           << " " << multi_detected[1][2] << " " << multi_detected[1][3]
            << G4endl;
 
   SteppingAction *SA = SteppingAction::Instance();
@@ -552,19 +532,7 @@ void Run::RecordEvent(const G4Event *evt) {
           tmp->depoEnergy[idpn][PMT] / keV < 9555)
         fOphotonDeposited[fPartType]
                          [(int)(tmp->depoEnergy[idpn][PMT] / keV / 2)]++;
-      
-      //if (tmp->depoEnergy[idpn][PMT] / keV > 0)
-      for (int i = 0; i < 7; i++)
-      {
-        fout << "\n" << std::setw(5) << gEventNumber << " EventId: " << tmp->name << " Type: " << i << "\n";
-        fout.write(reinterpret_cast<char*>(tmp->depoEnergyTime[i]), std::streamsize(5000*sizeof(G4int))); 
-        fout.write(reinterpret_cast<char*>(tmp->reacEnergyTime[i]), std::streamsize(5000*sizeof(G4int))); 
-        for (int k = 0; k < 5000; k++)
-        {
-          fEnergyTime[fPartType][i][k] += tmp->depoEnergyTime[i][k];
-          fCountTime[fPartType][i][k]  += tmp->reacEnergyTime[i][k];
-        }
-      }
+
       fEventRegistered[detID]++;
       fEventNumber++;
     }
@@ -585,6 +553,7 @@ void Run::RecordEvent(const G4Event *evt) {
 
     if (t < 500)
       if (i > 0 || PrimaryGeneratorAction::mono) n_spec[(int)t]++;
+    dNeutrons.at(i)->printTimeSeries(fout);
   }
 
   // if (dNeutrons.size() > 0) G4cout << dNeutrons.size() << " " <<
@@ -598,6 +567,7 @@ void Run::RecordEvent(const G4Event *evt) {
     tmp_.pid = dPhotons.at(i)->particledef.at(0).particleid;
     stPhoton[t] = tmp_;
     stJoint[t] = tmp_;
+    dPhotons.at(i)->printTimeSeries(fout);
   }
 
   int multi_n = 0, multi_g = 0, multi_j = 0;
