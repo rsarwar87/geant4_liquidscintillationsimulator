@@ -98,11 +98,11 @@ void RunAction::multiplicity_spec(const G4Run *aRun) {
            << fElectronDeposited[i] << "\t" << std::setw(sp)
            << fOphotonDeposited[i]
            << "\t"
-           << std::setw(sp) << i << "\t"
+           /*<< std::setw(sp) << i << "\t"
            << std::setw(sp) << fLightResponse[i] << "\t"
            << std::setw(sp) << fLightHistogram[i] << "\t"
            << std::setw(sp) << fPMTResponse[i] << "\t"
-           << std::setw(sp) << fPMTHistogram[i]
+           << std::setw(sp) << fPMTHistogram[i]*/
            << "\n";
   }
   fout.close();
